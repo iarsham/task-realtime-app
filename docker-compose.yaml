@@ -1,0 +1,94 @@
+version: "3.9"
+
+x-base:
+  &base
+  env_file:
+    - ./.env
+  networks:
+    - task-realtime-network
+  restart: always
+
+x-base-golang:
+  &base-golang
+  <<: *base
+  depends_on:
+    - mongo
+    - redis
+    - rabbitmq
+
+services:
+  mongo:
+    <<: *base
+    image: mongo:latest
+    container_name: mongo
+    expose:
+      - 27017
+    volumes:
+      - /mongo-db:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+
+  redis:
+    <<: *base
+    image: redis:7.2
+    container_name: redis
+    expose:
+      - 6379
+    volumes:
+      - /redis-db:/data
+    environment:
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_PORT: ${REDIS_PORT}
+
+  rabbitmq:
+    <<: *base
+    image: rabbitmq:3.13
+    container_name: rabbitmq
+    expose:
+      - 5672
+      - 15672
+    volumes:
+      - /rabbitmq-db:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_DEFAULT_PORT: ${RABBITMQ_PORT}
+
+  user-service:
+    <<: *base-golang
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: golang-user-service
+
+  notification-service:
+    <<: *base-golang
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    container_name: golang-notification-service
+
+  chat-service:
+    <<: *base-golang
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    container_name: golang-chat-service
+
+networks:
+  task-realtime-network:
+
+volumes:
+  mongo-db:
+  redis-db:
+  rabbitmq-db:

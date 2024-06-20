@@ -1,0 +1,19 @@
+# Exclude common files and directories
+.git
+.vscode
+.idea
+*.log
+*.out
+.env
+# Exclude Go build artifacts
+*.exe
+*.test
+*.prof
+
+# Exclude vendor directory
+vendor/
+
+# Exclude Docker-related files
+.dockerignore
+**/Dockerfile
+docker-compose.yml
