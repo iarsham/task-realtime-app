@@ -45,7 +45,7 @@ func (u *usersRepositoryImpl) CreateUser(user *entities.SignupRequest) (*models.
 	user.CreatedAt = time.Now().UTC()
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	_, err := u.db.Collection(u.cfg.Mongo.Collection).InsertOne(ctx, user)
+	_, err := u.db.Collection(u.cfg.Mongo.UserColl).InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func collectUsersDocument(filter bson.M, db *mongo.Database, cfg *configs.Config
 	var user models.Users
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	err := db.Collection(cfg.Mongo.Collection).FindOne(ctx, filter).Decode(&user)
+	err := db.Collection(cfg.Mongo.UserColl).FindOne(ctx, filter).Decode(&user)
 	if err != nil {
 		return nil, err
 	}

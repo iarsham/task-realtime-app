@@ -11,25 +11,12 @@ import (
 var content []byte
 
 type Mongo struct {
-	MongoUser  string
-	MongoPass  string
-	MongoHost  string
-	MongoPort  int
-	MongoDB    string
-	Collection string
-}
-
-type Redis struct {
-	Host     string
-	Port     int
-	Password string
-}
-
-type RabbitMQ struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
+	MongoUser string
+	MongoPass string
+	MongoHost string
+	MongoPort int
+	MongoDB   string
+	UserColl  string
 }
 
 type App struct {
