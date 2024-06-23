@@ -1,0 +1,27 @@
+mongo:
+  mongouser: username
+  mongopass: password
+  mongohost: mongo
+  mongoport: 27017
+  mongodb: chatapp
+  usercoll: users
+  roomcoll: rooms
+
+redis:
+  host: redis
+  password: password
+  port: 6379
+
+rabbitmq:
+  host: 0.0.0.0
+  user: user
+  password: password
+  port: 5672
+
+app:
+  host: 0.0.0.0
+  port: 8002
+  debug: true
+  secretkey: string
+  TokenExpireHour: 2
+
