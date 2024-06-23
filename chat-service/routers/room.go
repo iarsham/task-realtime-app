@@ -11,12 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func SetupRouters(r *gin.Engine, mongo *mongo.Database, cfg *configs.Config, logger *zap.Logger) {
-	baseAPI := r.Group("/api/room")
+func roomRouters(r *gin.RouterGroup, mongo *mongo.Database, cfg *configs.Config, logger *zap.Logger) {
+	roomAPI := r.Group("/room")
 	roomRepo := repository.NewRoomRepository(mongo, cfg)
 	roomHandler := &handlers.RoomHandler{
 		Usecase: usecase.NewRoomUsecase(roomRepo, cfg, logger),
 	}
-	baseAPI.GET("/", roomHandler.ListRoomsHandler)
-	baseAPI.POST("/", middlewares.JwtAuthMiddleware(logger, cfg), roomHandler.CreateRoomHandler)
+	roomAPI.GET("/", roomHandler.ListRoomsHandler)
+	roomAPI.POST("/", middlewares.JwtAuthMiddleware(logger, cfg), roomHandler.CreateRoomHandler)
 }
