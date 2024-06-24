@@ -9,7 +9,7 @@ import (
 func CreateAccessToken(user *models.Users, secretKey string, expire int) (string, error) {
 	exp := time.Now().Add(time.Hour * time.Duration(expire)).Unix()
 	claims := jwt.MapClaims{
-		"user_id":  user.ID,
+		"user_id":  user.ID.Hex(),
 		"username": user.Username,
 		"email":    user.Email,
 		"exp":      exp,
