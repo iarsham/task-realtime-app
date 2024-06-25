@@ -10,5 +10,6 @@ import (
 func SetupRouters(r *gin.Engine, mongo *mongo.Database, cfg *configs.Config, logger *zap.Logger) {
 	baseAPI := r.Group("/api")
 	roomRouters(baseAPI, mongo, cfg, logger)
-	wsRouters(r, logger)
+	messageRouters(baseAPI, mongo, cfg, logger)
+	wsRouters(r, mongo, cfg, logger)
 }
