@@ -1,8 +1,11 @@
 package ws
 
 import (
-	"bytes"
+	"encoding/json"
 	"github.com/gorilla/websocket"
+	"github.com/iarsham/task-realtime-app/chat-service/domain"
+	"github.com/iarsham/task-realtime-app/chat-service/entities"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 	"time"
 )
@@ -25,7 +28,9 @@ type Client struct {
 	send chan []byte
 }
 
-func (c *Client) read() {
+func (c *Client) read(msgUsecase domain.MessageUsecase, userID primitive.ObjectID) {
+	data := new(entities.MessageRequest)
+	data.SenderID = userID
 	defer func() {
 		c.pool.unregister <- c
 		c.conn.Close()
@@ -34,14 +39,20 @@ func (c *Client) read() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		_, msg, err := c.conn.ReadMessage()
-		if err != nil {
+		if err := c.conn.ReadJSON(&data); err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				c.pool.logger.Error("unexpected close error while reading message", zap.Error(err))
 			}
 			break
 		}
-		msg = bytes.TrimSpace(bytes.Replace(msg, newline, space, -1))
+		createdMsg, err := msgUsecase.CreateMessage(data)
+		if err != nil {
+			c.pool.logger.Error("error while creating message", zap.Error(err))
+		}
+		msg, err := json.Marshal(createdMsg)
+		if err != nil {
+			c.pool.logger.Error("error while marshaling message", zap.Error(err))
+		}
 		c.pool.broadcast <- msg
 	}
 }

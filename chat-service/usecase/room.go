@@ -52,6 +52,6 @@ func (r *roomUsecaseImpl) CreateRoom(room *entities.RoomRequest) (*models.Room, 
 	return createdRoom, nil
 }
 
-func (r *roomUsecaseImpl) GetUserID(ctx *gin.Context) primitive.ObjectID {
-	return helpers.GetUserID(ctx.Request)
+func (r *roomUsecaseImpl) GetUserID(ctx *gin.Context) (primitive.ObjectID, error) {
+	return helpers.GetUserID(ctx)
 }
