@@ -17,5 +17,5 @@ type RoomUsecase interface {
 	ListRooms() (*[]models.Room, error)
 	GetRoomByName(name string) (*models.Room, error)
 	CreateRoom(room *entities.RoomRequest) (*models.Room, error)
-	GetUserID(ctx *gin.Context) primitive.ObjectID
+	GetUserID(ctx *gin.Context) (primitive.ObjectID, error)
 }
