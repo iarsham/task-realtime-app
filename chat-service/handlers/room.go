@@ -14,6 +14,15 @@ type RoomHandler struct {
 	Usecase domain.RoomUsecase
 }
 
+// ListRoomsHandler godoc
+//
+//	@Summary		Get all Rooms
+//	@Description	Get all Rooms from the database or cache and return it
+//	@Produce		json
+//	@Tags			Room
+//	@Success		200	{object}	helpers.ListRooms
+//	@Failure		500	{object}	helpers.InternalServerError
+//	@router			/room [get]
 func (r *RoomHandler) ListRoomsHandler(ctx *gin.Context) {
 	rooms, err := r.Usecase.ListRooms()
 	if err != nil {
@@ -23,6 +32,19 @@ func (r *RoomHandler) ListRoomsHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, rooms)
 }
 
+// CreateRoomHandler godoc
+//
+//	@Summary		Create Room
+//	@Description	Create a Room with the provided data
+//	@Accept			json
+//	@Produce		json
+//	@Tags			Room
+//	@Param			templateRequest	body		entities.RoomRequest	true	"room data"
+//	@Success		201				{object}	helpers.RoomCreated
+//	@Failure		400				{object}	helpers.BadRequest
+//	@Failure		408				{object}	helpers.RoomExists
+//	@Failure		500				{object}	helpers.InternalServerError
+//	@router			/room [post]
 func (r *RoomHandler) CreateRoomHandler(ctx *gin.Context) {
 	data := new(entities.RoomRequest)
 	if err := ctx.ShouldBindJSON(data); err != nil {
@@ -36,5 +58,5 @@ func (r *RoomHandler) CreateRoomHandler(ctx *gin.Context) {
 	helpers.Background(func() {
 		r.Usecase.CreateRoom(data)
 	})
-	ctx.JSON(http.StatusCreated, gin.H{"response": "Room created successfully"})
+	ctx.JSON(http.StatusCreated, gin.H{"response": "room created successfully"})
 }

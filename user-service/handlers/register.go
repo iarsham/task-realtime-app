@@ -14,6 +14,19 @@ type RegisterHandler struct {
 	Usecase domain.RegisterUsecase
 }
 
+// RegisterHandler godoc
+//
+//	@Summary		Register
+//	@Description	Register a new user
+//	@Accept			json
+//	@Produce		json
+//	@Tags			Auth
+//	@Param			userRequest	body		entities.SignupRequest	true	"register data"
+//	@Success		201			{object}	helpers.UserCreated
+//	@Failure		400			{object}	helpers.BadRequest
+//	@Failure		409			{object}	helpers.EmailAlreadyExists
+//	@Failure		500			{object}	helpers.InternalServerError
+//	@Router			/register [post]
 func (r *RegisterHandler) RegisterHandler(ctx *gin.Context) {
 	data := new(entities.SignupRequest)
 	if err := ctx.ShouldBindJSON(&data); err != nil {

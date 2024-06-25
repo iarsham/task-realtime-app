@@ -11,6 +11,17 @@ import (
 	"go.uber.org/zap"
 )
 
+//	@title			Real-Time Task
+//	@version		0.1.0
+//	@description	API Server for Real-Time Task
+//	@termsOfService	http://swagger.io/terms/
+//	@termsOfService	http://swagger.io/terms/
+//	@contact.name	Arsham Roshannejad
+//	@contact.url	arsham.cloudarshamdev2001@gmail.com
+//	@contact.email	arshamdev2001@gmail.com
+//	@license.name	MIT
+//	@license.url	https://www.mit.edu/~amini/LICENSE.md
+//	@host			localhost:8000
 func main() {
 	cfg, err := configs.NewConfig()
 	if err != nil {

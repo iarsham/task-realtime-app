@@ -8,7 +8,8 @@ import (
 )
 
 func TestMessageInsertOne(t *testing.T) {
-	msgRepo := NewMessageRepository(DB, Cfg)
+	redisRepo := NewRedisRepository(REDIS)
+	msgRepo := NewMessageRepository(DB, redisRepo, Cfg)
 	data := &entities.MessageRequest{
 		Content:  "Hello Sir",
 		RoomID:   primitive.NewObjectID(),
@@ -20,7 +21,8 @@ func TestMessageInsertOne(t *testing.T) {
 }
 
 func TestMessageList(t *testing.T) {
-	msgRepo := NewMessageRepository(DB, Cfg)
+	redisRepo := NewRedisRepository(REDIS)
+	msgRepo := NewMessageRepository(DB, redisRepo, Cfg)
 	msgs, err := msgRepo.List(primitive.NewObjectID())
 	assert.Nilf(t, err, "Error while listing rooms")
 	assert.Equal(t, 0, len(*msgs))
