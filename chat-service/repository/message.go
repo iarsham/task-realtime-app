@@ -27,15 +27,15 @@ func NewMessageRepository(db *mongo.Database, cfg *configs.Config) domain.Messag
 func (m *messageRepositoryImpl) List(roomID primitive.ObjectID) (*[]models.Message, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
-	var rooms []models.Message
-	cursor, err := m.db.Collection(m.cfg.Mongo.RoomColl).Find(ctx, bson.M{"room_id": roomID})
+	var messages []models.Message
+	cursor, err := m.db.Collection(m.cfg.Mongo.MessageColl).Find(ctx, bson.M{"room_id": roomID})
 	if err != nil {
 		return nil, err
 	}
-	if err = cursor.All(ctx, &rooms); err != nil {
+	if err = cursor.All(ctx, &messages); err != nil {
 		return nil, err
 	}
-	return &rooms, nil
+	return &messages, nil
 }
 
 func (m *messageRepositoryImpl) Create(message *entities.MessageRequest) (*models.Message, error) {
