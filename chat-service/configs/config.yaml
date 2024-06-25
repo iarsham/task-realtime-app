@@ -6,6 +6,7 @@ mongo:
   mongodb: chatapp
   usercoll: users
   roomcoll: rooms
+  messagecoll: messages
 
 redis:
   host: redis

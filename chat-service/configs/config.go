@@ -11,13 +11,14 @@ import (
 var content []byte
 
 type Mongo struct {
-	MongoUser string
-	MongoPass string
-	MongoHost string
-	MongoPort int
-	MongoDB   string
-	UserColl  string
-	RoomColl  string
+	MongoUser   string
+	MongoPass   string
+	MongoHost   string
+	MongoPort   int
+	MongoDB     string
+	UserColl    string
+	RoomColl    string
+	MessageColl string
 }
 
 type Redis struct {
