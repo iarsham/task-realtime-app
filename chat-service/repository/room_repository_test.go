@@ -7,6 +7,7 @@ import (
 	"github.com/iarsham/task-realtime-app/chat-service/entities"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
+	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -16,12 +17,14 @@ import (
 )
 
 var (
-	DB  *mongo.Database
-	Cfg *configs.Config
+	DB    *mongo.Database
+	Cfg   *configs.Config
+	REDIS *redis.Client
 )
 
 func TestRoomInsertOne(t *testing.T) {
-	roomRepo := NewRoomRepository(DB, Cfg)
+	redisRepo := NewRedisRepository(REDIS)
+	roomRepo := NewRoomRepository(DB, redisRepo, Cfg)
 	data := &entities.RoomRequest{
 		Name: "golang",
 	}
@@ -31,7 +34,8 @@ func TestRoomInsertOne(t *testing.T) {
 }
 
 func TestRoomFindOneByName(t *testing.T) {
-	roomRepo := NewRoomRepository(DB, Cfg)
+	redisRepo := NewRedisRepository(REDIS)
+	roomRepo := NewRoomRepository(DB, redisRepo, Cfg)
 	room, err := roomRepo.GetByName("golang")
 	assert.Nilf(t, err, "Error while finding user by username")
 	assert.Equal(t, "golang", room.Name)
@@ -40,7 +44,8 @@ func TestRoomFindOneByName(t *testing.T) {
 }
 
 func TestRoomList(t *testing.T) {
-	roomRepo := NewRoomRepository(DB, Cfg)
+	redisRepo := NewRedisRepository(REDIS)
+	roomRepo := NewRoomRepository(DB, redisRepo, Cfg)
 	rooms, err := roomRepo.List()
 	assert.Nilf(t, err, "Error while listing rooms")
 	assert.Equal(t, 1, len(*rooms))
@@ -68,6 +73,22 @@ func TestMain(m *testing.M) {
 			log.Fatalf("Could not purge resource: %s", err)
 		}
 	}()
+	redisResource, err := pool.RunWithOptions(&dockertest.RunOptions{
+		Repository: "redis",
+		Tag:        "7.2",
+		Env:        []string{"REDIS_PASSWORD=" + Cfg.Redis.Password},
+	}, func(config *docker.HostConfig) {
+		config.AutoRemove = true
+		config.RestartPolicy = docker.RestartPolicy{Name: "no"}
+	})
+	if err != nil {
+		log.Fatalf("Could not start Redis resource: %s", err)
+	}
+	defer func() {
+		if err = pool.Purge(redisResource); err != nil {
+			log.Fatalf("Could not purge Redis resource: %s", err)
+		}
+	}()
 	err = pool.Retry(func() error {
 		var err error
 		client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(
@@ -85,11 +106,29 @@ func TestMain(m *testing.M) {
 		return nil
 	})
 	if err != nil {
-		log.Fatalf("Could not connect to docker: %s", err)
+		log.Fatalf("Could not connect to docker and mongo: %s", err)
+	}
+
+	err = pool.Retry(func() error {
+		REDIS = redis.NewClient(&redis.Options{
+			Addr:     fmt.Sprintf("127.0.0.1:%s", redisResource.GetPort("6379/tcp")),
+			Password: Cfg.Redis.Password,
+			DB:       0,
+		})
+		if err := REDIS.Ping(context.TODO()).Err(); err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("Redis Could not connect to docker and redis: %s", err)
 	}
 	exitCode := m.Run()
 	if err = pool.Purge(resource); err != nil {
-		log.Fatalf("Could not purge resource: %s", err)
+		log.Fatalf("Could not purge MongoDB resource: %s", err)
+	}
+	if err = pool.Purge(redisResource); err != nil {
+		log.Fatalf("Could not purge Redis resource: %s", err)
 	}
 	os.Exit(exitCode)
 }

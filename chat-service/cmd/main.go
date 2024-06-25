@@ -40,7 +40,7 @@ func main() {
 	}
 	gin.ForceConsoleColor()
 	r := gin.Default()
-	routers.SetupRouters(r, mongo.Database(cfg.Mongo.MongoDB), cfg, logs)
+	routers.SetupRouters(r, mongo.Database(cfg.Mongo.MongoDB), redis, cfg, logs)
 
 	addr := fmt.Sprintf("%s:%d", cfg.App.Host, cfg.App.Port)
 	logs.Fatal("server start failed", zap.Error(r.Run(addr)))

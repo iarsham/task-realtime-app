@@ -27,13 +27,11 @@ func NewUsersRepository(db *mongo.Database, cfg *configs.Config) domain.UserRepo
 func (u *usersRepositoryImpl) GetUserById(id primitive.ObjectID) (*models.Users, error) {
 	filter := bson.M{"_id": id}
 	return collectUsersDocument(filter, u.db, u.cfg)
-
 }
 
 func (u *usersRepositoryImpl) GetUserByEmail(email string) (*models.Users, error) {
 	filter := bson.M{"email": email}
 	return collectUsersDocument(filter, u.db, u.cfg)
-
 }
 
 func (u *usersRepositoryImpl) GetUserByUsername(username string) (*models.Users, error) {

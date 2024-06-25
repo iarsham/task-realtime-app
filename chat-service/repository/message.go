@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/iarsham/task-realtime-app/chat-service/configs"
 	"github.com/iarsham/task-realtime-app/chat-service/domain"
 	"github.com/iarsham/task-realtime-app/chat-service/entities"
@@ -13,14 +14,16 @@ import (
 )
 
 type messageRepositoryImpl struct {
-	db  *mongo.Database
-	cfg *configs.Config
+	redisRepo domain.RedisRepository
+	db        *mongo.Database
+	cfg       *configs.Config
 }
 
-func NewMessageRepository(db *mongo.Database, cfg *configs.Config) domain.MessageRepository {
+func NewMessageRepository(db *mongo.Database, redisRepo domain.RedisRepository, cfg *configs.Config) domain.MessageRepository {
 	return &messageRepositoryImpl{
-		db:  db,
-		cfg: cfg,
+		redisRepo: redisRepo,
+		db:        db,
+		cfg:       cfg,
 	}
 }
 
@@ -28,11 +31,24 @@ func (m *messageRepositoryImpl) List(roomID primitive.ObjectID) (*[]models.Messa
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	var messages []models.Message
+	cachedMessages, err := m.redisRepo.Get(m.cfg.Mongo.MessageColl)
+	if err == nil {
+		if err = json.Unmarshal(cachedMessages, &messages); err == nil {
+			return &messages, nil
+		}
+	}
 	cursor, err := m.db.Collection(m.cfg.Mongo.MessageColl).Find(ctx, bson.M{"room_id": roomID})
 	if err != nil {
 		return nil, err
 	}
 	if err = cursor.All(ctx, &messages); err != nil {
+		return nil, err
+	}
+	messagesByte, err := json.Marshal(messages)
+	if err != nil {
+		return nil, err
+	}
+	if err = m.redisRepo.Set(m.cfg.Mongo.MessageColl, messagesByte); err != nil {
 		return nil, err
 	}
 	return &messages, nil

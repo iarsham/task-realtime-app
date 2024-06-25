@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/iarsham/task-realtime-app/chat-service/configs"
 	"github.com/iarsham/task-realtime-app/chat-service/domain"
 	"github.com/iarsham/task-realtime-app/chat-service/entities"
@@ -12,14 +13,16 @@ import (
 )
 
 type roomRepositoryImpl struct {
-	db  *mongo.Database
-	cfg *configs.Config
+	redisRepo domain.RedisRepository
+	db        *mongo.Database
+	cfg       *configs.Config
 }
 
-func NewRoomRepository(db *mongo.Database, cfg *configs.Config) domain.RoomRepository {
+func NewRoomRepository(db *mongo.Database, redisRepo domain.RedisRepository, cfg *configs.Config) domain.RoomRepository {
 	return &roomRepositoryImpl{
-		db:  db,
-		cfg: cfg,
+		redisRepo: redisRepo,
+		db:        db,
+		cfg:       cfg,
 	}
 }
 
@@ -27,11 +30,24 @@ func (r *roomRepositoryImpl) List() (*[]models.Room, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	var rooms []models.Room
+	cachedRooms, err := r.redisRepo.Get(r.cfg.Mongo.RoomColl)
+	if err == nil {
+		if err = json.Unmarshal(cachedRooms, &rooms); err == nil {
+			return &rooms, nil
+		}
+	}
 	cursor, err := r.db.Collection(r.cfg.Mongo.RoomColl).Find(ctx, bson.M{})
 	if err != nil {
 		return nil, err
 	}
 	if err = cursor.All(ctx, &rooms); err != nil {
+		return nil, err
+	}
+	roomsByte, err := json.Marshal(rooms)
+	if err != nil {
+		return nil, err
+	}
+	if err = r.redisRepo.Set(r.cfg.Mongo.RoomColl, roomsByte); err != nil {
 		return nil, err
 	}
 	return &rooms, nil
