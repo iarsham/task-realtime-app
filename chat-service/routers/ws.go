@@ -6,18 +6,16 @@ import (
 	"github.com/iarsham/task-realtime-app/chat-service/domain"
 	"github.com/iarsham/task-realtime-app/chat-service/helpers"
 	"github.com/iarsham/task-realtime-app/chat-service/middlewares"
-	"github.com/iarsham/task-realtime-app/chat-service/usecase"
 	"github.com/iarsham/task-realtime-app/chat-service/ws"
 	"go.uber.org/zap"
 	"net/http"
 )
 
-func wsRouters(r *gin.Engine, msgRepo domain.MessageRepository, cfg *configs.Config, logger *zap.Logger) {
+func wsRouters(r *gin.Engine, msgUsecase domain.MessageUsecase, brokerUsecase domain.BrokerUsecase, cfg *configs.Config, logger *zap.Logger) {
 	wsAPI := r.Group("/ws")
 	wsAPI.Use(middlewares.JwtAuthMiddleware(logger, cfg))
 	pool := ws.NewPool(logger)
-	go pool.Run()
-	msgUsecase := usecase.NewMessageUsecase(msgRepo, cfg, logger)
+	go pool.Run(brokerUsecase)
 	wsAPI.GET("/", func(ctx *gin.Context) {
 		userID, err := helpers.GetUserID(ctx)
 		if err != nil {

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 //go:embed config.yaml
@@ -28,10 +27,11 @@ type Redis struct {
 }
 
 type RabbitMQ struct {
-	Host     string
-	Port     int
-	User     string
-	Password string
+	Host      string
+	Port      int
+	User      string
+	Password  string
+	QueueName string
 }
 
 type App struct {
@@ -43,15 +43,13 @@ type App struct {
 }
 
 type Config struct {
-	Mongo *Mongo
-	App   *App
-	Redis *Redis
+	App      *App
+	Mongo    *Mongo
+	Redis    *Redis
+	RabbitMQ *RabbitMQ
 }
 
 func NewConfig() (*Config, error) {
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix("ENV")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.SetConfigType("yaml")
 	if err := viper.ReadConfig(bytes.NewBuffer(content)); err != nil {
 		return nil, err

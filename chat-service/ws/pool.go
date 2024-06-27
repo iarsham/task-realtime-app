@@ -1,6 +1,9 @@
 package ws
 
-import "go.uber.org/zap"
+import (
+	"github.com/iarsham/task-realtime-app/chat-service/domain"
+	"go.uber.org/zap"
+)
 
 type Pool struct {
 	clients    map[*Client]bool
@@ -18,7 +21,7 @@ func NewPool(logger *zap.Logger) *Pool {
 	}
 }
 
-func (p *Pool) Run() {
+func (p *Pool) Run(brokerUsecase domain.BrokerUsecase) {
 	defer func() {
 		close(p.unregister)
 		close(p.broadcast)
@@ -31,6 +34,7 @@ func (p *Pool) Run() {
 				close(client.send)
 			}
 		case msg := <-p.broadcast:
+			brokerUsecase.PublishQueue("notification", msg)
 			for client := range p.clients {
 				select {
 				case client.send <- msg:

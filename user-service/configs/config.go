@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"github.com/spf13/viper"
-	"strings"
 )
 
 //go:embed config.yaml
@@ -33,9 +32,6 @@ type Config struct {
 }
 
 func NewConfig() (*Config, error) {
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix("ENV")
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_", "-", "_"))
 	viper.SetConfigType("yaml")
 	if err := viper.ReadConfig(bytes.NewBuffer(content)); err != nil {
 		return nil, err

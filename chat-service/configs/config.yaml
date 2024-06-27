@@ -14,10 +14,11 @@ redis:
   port: 6379
 
 rabbitmq:
-  host: 0.0.0.0
+  host: rabbitmq
   user: user
   password: password
   port: 5672
+  QueueName: notification
 
 app:
   host: 0.0.0.0
