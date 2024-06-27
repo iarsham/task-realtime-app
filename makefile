@@ -36,3 +36,7 @@ log-user:
 # Target to run logs in chat-service
 log-chat:
 	docker-compose logs -f chat-service
+
+# Target to run logs in notification-service
+log-notification:
+	docker-compose logs -f notification-service
