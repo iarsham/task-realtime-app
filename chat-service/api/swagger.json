@@ -1,0 +1,232 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API Server for Real-Time Task",
+        "title": "Real-Time Task",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Arsham Roshannejad",
+            "url": "arsham.cloudarshamdev2001@gmail.com",
+            "email": "arshamdev2001@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://www.mit.edu/~amini/LICENSE.md"
+        },
+        "version": "0.1.0"
+    },
+    "host": "localhost:8002",
+    "paths": {
+        "/room": {
+            "get": {
+                "description": "Get all Rooms from the database or cache and return it",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Get all Rooms",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Room"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InternalServerError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a Room with the provided data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Create Room",
+                "parameters": [
+                    {
+                        "description": "room data",
+                        "name": "templateRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.RoomRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.RoomCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BadRequest"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.RoomExists"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/room/{id}": {
+            "get": {
+                "description": "Get all Messages from the database or cache and return it",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Get all Messages",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"667aa959e88fab79e20b728c\"",
+                        "description": "room id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Message"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BadRequest"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InternalServerError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.RoomRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "warzone"
+                }
+            }
+        },
+        "helpers.BadRequest": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "bad request"
+                }
+            }
+        },
+        "helpers.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "internal server error"
+                }
+            }
+        },
+        "helpers.RoomCreated": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "string",
+                    "example": "room created successfully"
+                }
+            }
+        },
+        "helpers.RoomExists": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "room already exists"
+                }
+            }
+        },
+        "models.Message": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "string"
+                },
+                "sender_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Room": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string",
+                    "example": "2024-06-25T11:36:13.591+00:00"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "667aa959e88fab79e20b728c"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "warzone"
+                }
+            }
+        }
+    }
+}

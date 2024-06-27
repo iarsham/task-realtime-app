@@ -1,0 +1,239 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API Server for Real-Time Task",
+        "title": "Real-Time Task",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Arsham Roshannejad",
+            "url": "arsham.cloudarshamdev2001@gmail.com",
+            "email": "arshamdev2001@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://www.mit.edu/~amini/LICENSE.md"
+        },
+        "version": "0.1.0"
+    },
+    "host": "localhost:8000",
+    "paths": {
+        "/login": {
+            "post": {
+                "description": "Login a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "login data",
+                        "name": "userRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.AccessToken"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BadRequest"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InvalidPassword"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.UserNotFound"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InternalServerError"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Register a new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register",
+                "parameters": [
+                    {
+                        "description": "register data",
+                        "name": "userRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.SignupRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.UserCreated"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.BadRequest"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.EmailAlreadyExists"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/helpers.InternalServerError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entities.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "Kqg8Q@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 8,
+                    "example": "1qaz2wsx"
+                }
+            }
+        },
+        "entities.SignupRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "Kqg8Q@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 8,
+                    "example": "1qaz2wsx"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "johndoe"
+                }
+            }
+        },
+        "helpers.AccessToken": {
+            "type": "object",
+            "properties": {
+                "access-token": {
+                    "type": "string",
+                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                }
+            }
+        },
+        "helpers.BadRequest": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "bad request"
+                }
+            }
+        },
+        "helpers.EmailAlreadyExists": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "email already exists"
+                }
+            }
+        },
+        "helpers.InternalServerError": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "internal server error"
+                }
+            }
+        },
+        "helpers.InvalidPassword": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "invalid password"
+                }
+            }
+        },
+        "helpers.UserCreated": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "string",
+                    "example": "user created successfully"
+                }
+            }
+        },
+        "helpers.UserNotFound": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "user not found"
+                }
+            }
+        }
+    }
+}

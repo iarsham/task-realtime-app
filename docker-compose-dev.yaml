@@ -1,0 +1,88 @@
+x-base:
+  &base
+  env_file:
+    - ./.env
+  networks:
+    - task-realtime-dev-network
+  restart: always
+
+x-base-golang:
+  &base-golang
+  <<: *base
+  working_dir: /src
+  image: cosmtrek/air
+  depends_on:
+    - mongo
+    - redis
+    - rabbitmq
+
+services:
+  mongo:
+    <<: *base
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - /mongo-db:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB}
+
+  redis:
+    <<: *base
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - /redis-db:/data
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+  rabbitmq:
+    <<: *base
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - /rabbitmq-db:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+      RABBITMQ_DEFAULT_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_DEFAULT_PORT: ${RABBITMQ_PORT}
+
+  user-service:
+    <<: *base-golang
+    ports:
+      - "8000:8000"
+    container_name: golang-user-dev-service
+    volumes:
+      - ./user-service/:/src/
+
+  notification-service:
+    <<: *base-golang
+    ports:
+      - "8001:8001"
+    container_name: golang-notification-dev-service
+    volumes:
+      - ./notification-service/:/src/
+
+  chat-service:
+    <<: *base-golang
+    ports:
+      - "8002:8002"
+    container_name: golang-chat-dev-service
+    volumes:
+      - ./chat-service/:/src/
+
+networks:
+  task-realtime-dev-network:
+
+volumes:
+  mongo-db:
+  redis-db:
+  rabbitmq-db:

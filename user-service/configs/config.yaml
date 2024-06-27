@@ -1,0 +1,15 @@
+mongo:
+  mongouser: username
+  mongopass: password
+  mongohost: mongo
+  mongoport: 27017
+  mongodb: chatapp
+  usercoll: users
+
+app:
+  host: 0.0.0.0
+  port: 8000
+  debug: true
+  secretkey: string
+  TokenExpireHour: 2
+

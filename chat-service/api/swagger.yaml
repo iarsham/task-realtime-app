@@ -1,0 +1,155 @@
+definitions:
+  entities.RoomRequest:
+    properties:
+      name:
+        example: warzone
+        type: string
+    required:
+    - name
+    type: object
+  helpers.BadRequest:
+    properties:
+      error:
+        example: bad request
+        type: string
+    type: object
+  helpers.InternalServerError:
+    properties:
+      error:
+        example: internal server error
+        type: string
+    type: object
+  helpers.RoomCreated:
+    properties:
+      response:
+        example: room created successfully
+        type: string
+    type: object
+  helpers.RoomExists:
+    properties:
+      error:
+        example: room already exists
+        type: string
+    type: object
+  models.Message:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      room_id:
+        type: string
+      sender_id:
+        type: string
+    type: object
+  models.Room:
+    properties:
+      created_at:
+        example: "2024-06-25T11:36:13.591+00:00"
+        type: string
+      id:
+        example: 667aa959e88fab79e20b728c
+        type: string
+      name:
+        example: warzone
+        type: string
+    type: object
+host: localhost:8002
+info:
+  contact:
+    email: arshamdev2001@gmail.com
+    name: Arsham Roshannejad
+    url: arsham.cloudarshamdev2001@gmail.com
+  description: API Server for Real-Time Task
+  license:
+    name: MIT
+    url: https://www.mit.edu/~amini/LICENSE.md
+  termsOfService: http://swagger.io/terms/
+  title: Real-Time Task
+  version: 0.1.0
+paths:
+  /room:
+    get:
+      description: Get all Rooms from the database or cache and return it
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Room'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.InternalServerError'
+      summary: Get all Rooms
+      tags:
+      - Room
+    post:
+      consumes:
+      - application/json
+      description: Create a Room with the provided data
+      parameters:
+      - description: room data
+        in: body
+        name: templateRequest
+        required: true
+        schema:
+          $ref: '#/definitions/entities.RoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/helpers.RoomCreated'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.BadRequest'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/helpers.RoomExists'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.InternalServerError'
+      summary: Create Room
+      tags:
+      - Room
+  /room/{id}:
+    get:
+      description: Get all Messages from the database or cache and return it
+      parameters:
+      - description: room id
+        example: '"667aa959e88fab79e20b728c"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Message'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helpers.BadRequest'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/helpers.InternalServerError'
+      summary: Get all Messages
+      tags:
+      - Message
+swagger: "2.0"
